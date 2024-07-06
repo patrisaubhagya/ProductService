@@ -5,6 +5,8 @@ import com.saubhagya.projectservice.dto.FakeStoreResponseDTO;
 import com.saubhagya.projectservice.exceptions.ProductNotFoundException;
 import com.saubhagya.projectservice.models.Category;
 import com.saubhagya.projectservice.models.Product;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -13,9 +15,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-@Primary
+@Qualifier("FakeStoreProductService")
+//@Primary
 public class FakeStoreProductService implements ProductService {
 
+    @Autowired
     RestTemplate restTemplate = new RestTemplate();
 
     @Override
