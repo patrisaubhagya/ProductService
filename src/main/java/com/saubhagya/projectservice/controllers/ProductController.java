@@ -1,10 +1,10 @@
 package com.saubhagya.projectservice.controllers;
 
-import com.saubhagya.projectservice.dto.ErrorResponseDTO;
-import com.saubhagya.projectservice.dto.FakeStoreRequestDTO;
-import com.saubhagya.projectservice.dto.ListProductsResponseDTO;
-import com.saubhagya.projectservice.dto.ProductResponseDTO;
+import com.saubhagya.projectservice.dto.*;
+import com.saubhagya.projectservice.exceptions.DBNotFoundException;
+import com.saubhagya.projectservice.exceptions.DBTImeoutException;
 import com.saubhagya.projectservice.exceptions.ProductNotFoundException;
+import com.saubhagya.projectservice.models.Category;
 import com.saubhagya.projectservice.models.Product;
 import com.saubhagya.projectservice.services.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,14 +19,15 @@ import java.util.List;
 public class ProductController {
 
     @Autowired
-    @Qualifier("FakeStoreProductService")
+    @Qualifier("DatabaseProductService")
     ProductService productService;
 
     @GetMapping("products/{id}")
-    public ResponseEntity<ProductResponseDTO> getProductById(@PathVariable("id") String id) throws ProductNotFoundException {
+    public ResponseEntity<ProductResponseDTO> getProductById(@PathVariable("id") String id) throws DBTImeoutException, DBNotFoundException, ProductNotFoundException {
         System.out.println("Product Id : " + id);
 
         Product product = productService.getProductById(id);
+
         ProductResponseDTO productResponseDTO = new ProductResponseDTO();
         productResponseDTO.setProduct(product);
         ResponseEntity<ProductResponseDTO> responseEntity = new ResponseEntity<>(productResponseDTO, HttpStatus.OK);
@@ -64,9 +65,28 @@ public class ProductController {
         return responseEntity;
     }
 
+    @GetMapping("/categories")
+    public ResponseEntity<ListCategoryResponseDTO> getAllCategory() {
+       List<Category> categories = productService.getAllCategory();
+
+       ListCategoryResponseDTO responseDTO = new ListCategoryResponseDTO();
+
+       responseDTO.setCategoryList(categories);
+       responseDTO.setResponseMessage("Success");
+       ResponseEntity<ListCategoryResponseDTO> responseEntity= new ResponseEntity<>(responseDTO, HttpStatus.OK);
+       return responseEntity;
+    }
+
+    @GetMapping("/search")
+    public List<Product> getProductsByCategoryName(@RequestParam("category") String categoryName) {
+        System.out.println("Search Text : " + categoryName);
+        List<Product> products = productService.getProductsByCategory(categoryName);
+        return products;
+    }
+
     @PostMapping("/products")
-    public Product createProduct(@RequestBody() FakeStoreRequestDTO fakeStoreRequestDTO) {
-        Product savedProduct = productService.createProduct(fakeStoreRequestDTO);
+    public Product createProduct(@RequestBody Product product) {
+        Product savedProduct = productService.createProduct(product);
         return savedProduct;
     }
 

@@ -2,12 +2,13 @@ package com.saubhagya.projectservice.services;
 
 import com.saubhagya.projectservice.dto.FakeStoreRequestDTO;
 import com.saubhagya.projectservice.dto.FakeStoreResponseDTO;
+import com.saubhagya.projectservice.exceptions.DBNotFoundException;
+import com.saubhagya.projectservice.exceptions.DBTImeoutException;
 import com.saubhagya.projectservice.exceptions.ProductNotFoundException;
 import com.saubhagya.projectservice.models.Category;
 import com.saubhagya.projectservice.models.Product;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -23,7 +24,7 @@ public class FakeStoreProductService implements ProductService {
     RestTemplate restTemplate = new RestTemplate();
 
     @Override
-    public Product getProductById(String id) throws ProductNotFoundException {
+    public Product getProductById(String id) throws DBTImeoutException, DBNotFoundException, ProductNotFoundException {
         FakeStoreResponseDTO response = restTemplate.getForObject(
                 "https://fakestoreapi.com/products/" + id,
                 FakeStoreResponseDTO.class);
@@ -49,6 +50,21 @@ public class FakeStoreProductService implements ProductService {
     }
 
     @Override
+    public List<Category> getAllCategory() {
+        return List.of();
+    }
+
+    @Override
+    public Product createProduct(Product product) {
+        return null;
+    }
+
+    @Override
+    public List<Product> getProductsByCategory(String category) {
+        return List.of();
+    }
+
+    @Override
     public Product createProduct(FakeStoreRequestDTO fakeStoreRequestDTO) {
         FakeStoreResponseDTO savedProductResponse = restTemplate.postForObject(
                 "https://fakestoreapi.com/products",
@@ -56,4 +72,11 @@ public class FakeStoreProductService implements ProductService {
 
         return savedProductResponse.toProduct();
     }
+
+    @Override
+    public List<Product> searchProduct(String searchText) {
+        return List.of();
+    }
+
+
 }

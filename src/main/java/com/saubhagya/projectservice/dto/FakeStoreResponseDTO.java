@@ -17,7 +17,7 @@ public class FakeStoreResponseDTO {
 
     public Product toProduct(){
         Product product = new Product();
-        product.setId(this.id);
+        product.setId(Long.valueOf(this.id));
         product.setName(this.title);
         product.setPrice(this.price);
         product.setDescription(this.description);
@@ -25,8 +25,8 @@ public class FakeStoreResponseDTO {
 
         Category category = new Category();
 
-        category.setCategoryName(this.category);
-        category.setId(this.id);
+        category.setName(this.category);
+//        category.setId(this.id);
         product.setCategory(category);
 
         return product;
