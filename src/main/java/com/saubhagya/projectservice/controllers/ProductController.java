@@ -15,6 +15,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+//scalerRDSUser
+//scalerRDSPass
+//3306
+
 @RestController
 public class ProductController {
 
@@ -77,12 +81,20 @@ public class ProductController {
        return responseEntity;
     }
 
-    @GetMapping("/search")
+    @GetMapping("/categorysearch")
     public List<Product> getProductsByCategoryName(@RequestParam("category") String categoryName) {
         System.out.println("Search Text : " + categoryName);
         List<Product> products = productService.getProductsByCategory(categoryName);
         return products;
     }
+
+    @GetMapping("/productSearch")
+    public List<Product> getProductsByTextName(@RequestParam("text")  String searchText) {
+        System.out.println("Search Text : " + searchText);
+        List<Product> products = productService.searchProduct(searchText);
+        return products;
+    }
+
 
     @PostMapping("/products")
     public Product createProduct(@RequestBody Product product) {

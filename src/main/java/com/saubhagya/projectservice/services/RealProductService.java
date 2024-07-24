@@ -79,7 +79,8 @@ public class RealProductService implements ProductService {
 
     @Override
     public List<Product> searchProduct(String searchText) {
-        return List.of();
+    List <Product> productsFromDB = productRepository.getProductsByNameContaining(searchText);
+    return productsFromDB;
     }
 
 
