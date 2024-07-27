@@ -6,6 +6,7 @@ import com.saubhagya.projectservice.exceptions.DBTImeoutException;
 import com.saubhagya.projectservice.exceptions.ProductNotFoundException;
 import com.saubhagya.projectservice.models.Category;
 import com.saubhagya.projectservice.models.Product;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 
@@ -13,7 +14,7 @@ import java.util.List;
 public interface ProductService {
     Product getProductById(String id) throws DBTImeoutException, DBNotFoundException, ProductNotFoundException;
 
-    List<Product> getAllProducts();
+    Page<Product> getAllProducts(Integer pageSize, Integer pageNumber, String sortField, String sortOrder);
 
     List<Category> getAllCategory();
 

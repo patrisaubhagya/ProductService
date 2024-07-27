@@ -9,6 +9,7 @@ import com.saubhagya.projectservice.models.Product;
 import com.saubhagya.projectservice.services.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,7 +24,7 @@ import java.util.List;
 public class ProductController {
 
     @Autowired
-    @Qualifier("DatabaseProductService")
+    @Qualifier("FakeStoreProductService")
     ProductService productService;
 
     @GetMapping("products/{id}")
@@ -58,8 +59,13 @@ public class ProductController {
     }
 
     @GetMapping("/products")
-    public ResponseEntity<ListProductsResponseDTO> getAllProducts() {
-        List<Product> products = productService.getAllProducts();
+    public ResponseEntity<ListProductsResponseDTO> getAllProducts(
+            @RequestParam(defaultValue = "2") Integer pageSize,
+            @RequestParam(defaultValue = "0") Integer pageNumber,
+            @RequestParam(defaultValue = "name") String sortField,
+            @RequestParam(defaultValue = "asc") String sortOrder
+            ){
+        Page<Product> products = productService.getAllProducts(pageSize, pageNumber, sortField, sortOrder);
         ListProductsResponseDTO responseDTO = new ListProductsResponseDTO();
 
         responseDTO.setProductList(products);
@@ -97,8 +103,9 @@ public class ProductController {
 
 
     @PostMapping("/products")
-    public Product createProduct(@RequestBody Product product) {
-        Product savedProduct = productService.createProduct(product);
+    public Product createProduct(@RequestBody CreateProductDTO createProductDTO) {
+        Product toBeSavedProduct = createProductDTO.toProduct();
+        Product savedProduct = productService.createProduct(toBeSavedProduct);
         return savedProduct;
     }
 

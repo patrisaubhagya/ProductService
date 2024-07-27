@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.io.Serializable;
+
 
 @Getter
 @Setter
@@ -14,7 +16,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @Entity
 
-public class Product extends BaseModel{
+public class Product extends BaseModel implements Serializable {
 //    @Id
 //    @GeneratedValue(strategy = GenerationType.IDENTITY)
 //    private Long id;

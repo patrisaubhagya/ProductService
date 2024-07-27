@@ -9,6 +9,10 @@ import com.saubhagya.projectservice.models.Category;
 import com.saubhagya.projectservice.models.Product;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -21,22 +25,39 @@ import java.util.List;
 public class FakeStoreProductService implements ProductService {
 
     @Autowired
-    RestTemplate restTemplate = new RestTemplate();
+    RestTemplate restTemplate;
+
+    @Autowired
+    RedisTemplate redisTemplate;
 
     @Override
-    public Product getProductById(String id) throws DBTImeoutException, DBNotFoundException, ProductNotFoundException {
-        FakeStoreResponseDTO response = restTemplate.getForObject(
-                "https://fakestoreapi.com/products/" + id,
-                FakeStoreResponseDTO.class);
-
-        if(response == null){
-            throw new ProductNotFoundException("Product with id " + id + " not found");
+    public Product getProductById(String productId) throws DBTImeoutException, DBNotFoundException, ProductNotFoundException {
+        Product cachedProduct = (Product) redisTemplate.opsForHash().get("Product", "PRODUCT_" + productId);
+        if (cachedProduct != null) {
+            return cachedProduct;
         }
-        return response.toProduct();
+
+        FakeStoreResponseDTO response = restTemplate.getForObject(
+                "https://fakestoreapi.com/products/" + productId,
+                FakeStoreResponseDTO.class
+        );
+        if(response == null){
+            throw new ProductNotFoundException("product with id " + productId + " not found");
+        }
+
+        Product product = response.toProduct();
+        redisTemplate.opsForHash().put("Product", "PRODUCT_" + productId, product);
+        return product;
     }
 
     @Override
-    public List<Product> getAllProducts() {
+    public Page<Product> getAllProducts(Integer pageSize, Integer pageNumber, String sortField, String sortOrder) {
+        List<Product> cachedProducts = (List<Product>) redisTemplate.opsForHash().get("Product", "PRODUCT_ALL");
+        if (cachedProducts != null && cachedProducts.size() > 0){
+            Page<Product> page = new PageImpl<>(cachedProducts);
+            return page;
+        }
+
         FakeStoreResponseDTO[] responseArray = restTemplate.getForObject(
                 "https://fakestoreapi.com/products",
                 FakeStoreResponseDTO[].class);
@@ -46,7 +67,10 @@ public class FakeStoreProductService implements ProductService {
             Product product = response.toProduct();
             productList.add(product);
         }
-        return productList;
+
+        redisTemplate.opsForHash().put("Product", "PRODUCT_ALL", productList);
+        Page<Product> page = new PageImpl<Product>(productList);
+        return page;
     }
 
     @Override
